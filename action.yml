@@ -1,0 +1,83 @@
+name: Setup Python and Poetry
+description: Setup Python and Poetry. Cribbed from snok/install-poetry.
+inputs:
+  python-version:
+    description: Python version to pass to actions/setup-python@v2.
+    required: false
+    default: "3.x"
+  poetry-version:
+    description: Poetry version to install via pip.
+    required: false
+    default: "1.1.12"
+  debug:
+    description: If set to the string 'true', dump the state of the virtual env after setup.
+    required: false
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - name: Setup Python
+      id: setup-python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Check for poetry lock
+      run: "test -f poetry.lock || (echo No lock file! && false)"
+      shell: bash
+
+    # Install poetry. It takes ~10seconds for a clean pip install, most of which is
+    # the installation rather than the downloading. So instead, we cache the user-base
+    # directory (~/.local). For this to be safe:
+    # - we must not write to `.local` as part of the CI
+    # - we must not install anything with the system `pip` other than poetry.
+    # Based on the writeup at:
+    # https://github.com/snok/install-poetry/blob/main/README.md#caching-the-poetry-installation
+    - name: Locate user site
+      id: site-user-base
+      run: echo "::set-output name=dir::$(python -m site --user-base)"
+      shell: bash
+
+    - name: Restore poetry installation
+      id: poetry-install-cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.site-user-base.outputs.dir }}
+        key: poetry-install-cache-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}
+
+    - name: Install poetry from scratch
+      if: "${{ steps.poetry-install-cache.outputs.cache-hit != 'true' }}"
+      run: python -m pip install --user poetry==${{ inputs.poetry-version }}
+      shell: bash
+
+    # Poetry manages a virtualenv for us. We're going to cache that too.
+    # Again, we're following snok/install-poetry's README.
+    - name: Locate poetry venv
+      id: poetry-venvs
+      run: echo "::set-output name=dir::$(python -m poetry config virtualenvs.path)"
+      shell: bash
+
+    - name: Restore poetry venv
+      id: poetry-venv-cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.poetry-venvs.outputs.dir }}
+        key: poetry-venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      if: "${{ steps.poetry-venv-cache.outputs.cache-hit != 'true' }}"
+      run: poetry install --no-interaction --no-root
+      shell: bash
+
+    # (Not sure if this is needed if there's a cache hit?)
+    - name: Install project
+      run: poetry install --no-interaction
+      shell: bash
+
+    # For debugging---let's just check what we're working with.
+    - name: Dump virtual environment
+      if: "${{ inputs.debug == 'true' }}"
+      run: |
+        poetry env info
+        poetry show
+      shell: bash
