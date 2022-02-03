@@ -34,7 +34,7 @@ runs:
       run: echo "::set-output name=dir::$(python -m site --user-base)"
       shell: bash
 
-    - name: Restore poetry installation
+    - name: Restore/cache poetry installation
       id: poetry-install-cache
       uses: actions/cache@v2
       with:
@@ -53,7 +53,7 @@ runs:
       run: echo "::set-output name=dir::$(python -m poetry config virtualenvs.path)"
       shell: bash
 
-    - name: Restore poetry venv
+    - name: Restore/cache poetry venv
       id: poetry-venv-cache
       uses: actions/cache@v2
       with:
