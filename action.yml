@@ -9,10 +9,6 @@ inputs:
     description: Poetry version to install via pip.
     required: false
     default: "1.1.12"
-  debug:
-    description: If set to the string 'true', dump the state of the virtual env after setup.
-    required: false
-    default: "false"
 runs:
   using: composite
   steps:
@@ -76,7 +72,6 @@ runs:
 
     # For debugging---let's just check what we're working with.
     - name: Dump virtual environment
-      if: "${{ inputs.debug == 'true' }}"
       run: |
         poetry env info
         poetry show
