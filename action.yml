@@ -9,6 +9,15 @@ inputs:
     description: Poetry version to install via pip.
     required: false
     default: "1.1.12"
+  extras:
+    description: >
+      If present, a space separated list of extras to pass to
+      `poetry install --extra ...`. Either way, dev-dependencies
+      will be installed.
+    # If https://github.com/python-poetry/poetry/issues/3413 get solved, I think
+    # we should make this action install all extras by default.
+    required: false
+    default: ""
 runs:
   using: composite
   steps:
@@ -58,7 +67,7 @@ runs:
       uses: actions/cache@v2
       with:
         path: ${{ steps.poetry-venvs.outputs.dir }}
-        key: poetry-venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+        key: poetry-venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ inputs.extras }}
 
     - name: Check that the poetry lockfile is up to date
       # This is rather hacky. We look for the warning message in poetry's
@@ -70,9 +79,14 @@ runs:
         (echo pyproject.toml was updated without running \`poetry lock --no-update\`. && false)
       shell: bash
 
-    - name: Install dependencies
-      if: "${{ steps.poetry-venv-cache.outputs.cache-hit != 'true' }}"
+    - name: Install base dependencies only
+      if: steps.poetry-venv-cache.outputs.cache-hit != 'true' && inputs.extras == ''
       run: poetry install --no-interaction --no-root
+      shell: bash
+
+    - name: Install poetry with --extras=${{ inputs.extras }}
+      if: steps.poetry-venv-cache.outputs.cache-hit != 'true' && inputs.extras != ''
+      run: poetry install --no-interaction --no-root --extras="${{ inputs.extras }}"
       shell: bash
 
     # (Not sure if this is needed if there's a cache hit?)
