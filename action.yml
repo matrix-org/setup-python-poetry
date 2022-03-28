@@ -60,6 +60,16 @@ runs:
         path: ${{ steps.poetry-venvs.outputs.dir }}
         key: poetry-venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
+    - name: Check that the poetry lockfile is up to date
+      # This is rather hacky. We look for the warning message in poetry's
+      # output. We really want to use `poetry lock --check`, but that is only
+      # available in poetry 1.2.
+      # https://github.com/python-poetry/poetry/issues/1406
+      run: >-
+        poetry export --without-hashes | (! grep "The lock file is not up to date") ||
+        (echo pyproject.toml was updated without running \`poetry lock --no-update\`. && false)
+      shell: bash
+
     - name: Install dependencies
       if: "${{ steps.poetry-venv-cache.outputs.cache-hit != 'true' }}"
       run: poetry install --no-interaction --no-root
