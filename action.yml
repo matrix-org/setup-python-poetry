@@ -79,19 +79,14 @@ runs:
         (echo pyproject.toml was updated without running \`poetry lock --no-update\`. && false)
       shell: bash
 
-    - name: Install base dependencies only
-      if: steps.poetry-venv-cache.outputs.cache-hit != 'true' && inputs.extras == ''
+    - name: Install project (no extras)
+      if: inputs.extras == ''
       run: poetry install --no-interaction --no-root
       shell: bash
 
-    - name: Install poetry with --extras=${{ inputs.extras }}
-      if: steps.poetry-venv-cache.outputs.cache-hit != 'true' && inputs.extras != ''
-      run: poetry install --no-interaction --no-root --extras="${{ inputs.extras }}"
-      shell: bash
-
-    # (Not sure if this is needed if there's a cache hit?)
-    - name: Install project
-      run: poetry install --no-interaction
+    - name: Install project with --extras=${{ inputs.extras }}
+      if: inputs.extras != ''
+      run: poetry install --no-interaction --extras="${{ inputs.extras }}"
       shell: bash
 
     # For debugging---let's just check what we're working with.
