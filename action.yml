@@ -74,6 +74,14 @@ runs:
       # output. We really want to use `poetry lock --check`, but that is only
       # available in poetry 1.2.
       # https://github.com/python-poetry/poetry/issues/1406
+      #
+      # Note that the error message has changed with Poetry 1.2 to
+      #     Warning: poetry.lock is not consistent with pyproject.toml. You may be
+      #     getting improper dependencies. Run poetry lock [--no-update] to fix it.
+      # So this check fails on Poetry 1.2. But that version of poetry wants to change
+      # the lockfile to include versions of setuptools for each dependency. So it's
+      # convenient to leave this as-is, unless we want to change to use Poetry 1.2 by
+      # default in the future.
       run: >-
         poetry export --without-hashes | (! grep "The lock file is not up to date") ||
         (echo pyproject.toml was updated without running \`poetry lock --no-update\`. && false)
