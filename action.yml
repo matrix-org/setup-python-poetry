@@ -89,7 +89,7 @@ runs:
 
     - name: Install project (no extras)
       if: inputs.extras == ''
-      run: poetry install --no-interaction --no-root
+      run: poetry install --no-interaction
       shell: bash
 
     - name: Install project with --extras=${{ inputs.extras }}
