@@ -8,7 +8,7 @@ inputs:
   poetry-version:
     description: Poetry version to install via pip.
     required: false
-    default: "1.1.12"
+    default: "1.2.0"
   extras:
     description: >
       If present, a space separated list of extras to pass to
