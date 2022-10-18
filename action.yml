@@ -40,7 +40,7 @@ runs:
     # https://github.com/snok/install-poetry/blob/main/README.md#caching-the-poetry-installation
     - name: Locate user site
       id: site-user-base
-      run: echo "::set-output name=dir::$(python -m site --user-base)"
+      run: echo "dir=$(python -m site --user-base)" >> "$GITHUB_OUTPUT"
       shell: bash
 
     - name: Restore/cache poetry installation
@@ -59,7 +59,7 @@ runs:
     # Again, we're following snok/install-poetry's README.
     - name: Locate poetry venv
       id: poetry-venvs
-      run: echo "::set-output name=dir::$(python -m poetry config virtualenvs.path)"
+      run: echo "dir=$(python -m poetry config virtualenvs.path)" >> "$GITHUB_OUTPUT"
       shell: bash
 
     - name: Restore/cache poetry venv
