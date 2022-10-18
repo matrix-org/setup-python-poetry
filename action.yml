@@ -45,7 +45,7 @@ runs:
 
     - name: Restore/cache poetry installation
       id: poetry-install-cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ steps.site-user-base.outputs.dir }}
         key: poetry-install-cache-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}
@@ -64,7 +64,7 @@ runs:
 
     - name: Restore/cache poetry venv
       id: poetry-venv-cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ steps.poetry-venvs.outputs.dir }}
         key: poetry-venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ inputs.extras }}
