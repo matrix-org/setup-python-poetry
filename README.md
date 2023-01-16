@@ -11,3 +11,7 @@ From this point, the caller of the action can run commands within the poetry-man
 The Python and Poetry versions to are configurable: see `action.yaml` for details.
 
 This particular action is loosely based on [`snok/install-poetry`](https://github.com/snok/install-poetry): in particular, the advice from its README on handling caching.
+
+# Releasing
+
+Follow the advice given on the [backend-meta](https://github.com/matrix-org/backend-meta#releases) repo.
