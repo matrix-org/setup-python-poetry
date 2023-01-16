@@ -2,13 +2,13 @@ name: Setup Python and Poetry
 description: Setup Python and Poetry. Cribbed from snok/install-poetry.
 inputs:
   python-version:
-    description: Python version to pass to actions/setup-python@v2.
+    description: Python version to pass to actions/setup-python@v4.
     required: false
     default: "3.x"
   poetry-version:
     description: Poetry version to install via pip.
     required: false
-    default: "1.2.0"
+    default: "1.2.2"
   extras:
     description: >
       If present, a space separated list of extras to pass to
