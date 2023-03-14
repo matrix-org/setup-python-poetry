@@ -11,11 +11,17 @@ inputs:
     default: "1.2.2"
   extras:
     description: >
-      If present, a space separated list of extras to pass to
+      If present, a space-separated list of extras to pass to
       `poetry install --extra ...`. Either way, dev-dependencies
       will be installed.
     # If https://github.com/python-poetry/poetry/issues/3413 get solved, I think
     # we should make this action install all extras by default.
+    required: false
+    default: ""
+  groups:
+    description: >
+      If present, a space-separated list of dependency groups to pass to
+      `poetry install --with ...`.
     required: false
     default: ""
 runs:
@@ -87,14 +93,15 @@ runs:
         (echo pyproject.toml was updated without running \`poetry lock --no-update\`. && false)
       shell: bash
 
-    - name: Install project (no extras)
-      if: inputs.extras == ''
+    - name: Install project (no extras or groups)
+      if: inputs.extras == '' && inputs.groups == ''
       run: poetry install --no-interaction
       shell: bash
 
-    - name: Install project with --extras=${{ inputs.extras }}
-      if: inputs.extras != ''
-      run: poetry install --no-interaction --extras="${{ inputs.extras }}"
+    - name: Install project with --extras=${{ inputs.extras }} --with=${{ inputs.groups }}
+      if: inputs.extras != '' || inputs.groups != ''
+      # (Empty extras or groups lists are fine.)
+      run: poetry install --no-interaction --extras="${{ inputs.extras }}" --with="${{ inputs.groups }}"
       shell: bash
 
     # For debugging---let's just check what we're working with.
