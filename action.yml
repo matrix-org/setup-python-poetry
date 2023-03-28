@@ -101,13 +101,13 @@ runs:
 
     - name: Install project (no extras or groups)
       if: inputs.extras == '' && inputs.groups == ''
-      run: poetry install --no-interaction ${{ inputs.install-project == 'true' && '' || '--no-root' }}
+      run: poetry install --no-interaction ${{ inputs.install-project != 'true' && '--no-root' || '' }}
       shell: bash
 
     - name: Install project with --extras=${{ inputs.extras }} --with=${{ inputs.groups }}
       if: inputs.extras != '' || inputs.groups != ''
       # (Empty extras or groups lists are fine.)
-      run: poetry install --no-interaction --extras="${{ inputs.extras }}" --with="${{ inputs.groups }}" ${{ inputs.install-project == 'true' && '' || '--no-root' }}
+      run: poetry install --no-interaction --extras="${{ inputs.extras }}" --with="${{ inputs.groups }}" ${{ inputs.install-project != 'true' && '--no-root' || '' }}
       shell: bash
 
     # For debugging---let's just check what we're working with.
