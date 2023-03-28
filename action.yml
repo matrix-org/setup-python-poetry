@@ -24,6 +24,12 @@ inputs:
       `poetry install --with ...`.
     required: false
     default: ""
+  install-project:
+    description: >
+      Set to "false" to disable installing of the project, instead only install
+      deps.
+    required: false
+    default: "true"
 runs:
   using: composite
   steps:
@@ -95,13 +101,13 @@ runs:
 
     - name: Install project (no extras or groups)
       if: inputs.extras == '' && inputs.groups == ''
-      run: poetry install --no-interaction
+      run: poetry install --no-interaction ${{ inputs.install-project && '' || '--no-root' }}
       shell: bash
 
     - name: Install project with --extras=${{ inputs.extras }} --with=${{ inputs.groups }}
       if: inputs.extras != '' || inputs.groups != ''
       # (Empty extras or groups lists are fine.)
-      run: poetry install --no-interaction --extras="${{ inputs.extras }}" --with="${{ inputs.groups }}"
+      run: poetry install --no-interaction --extras="${{ inputs.extras }}" --with="${{ inputs.groups }}" ${{ inputs.install-project && '' || '--no-root' }}
       shell: bash
 
     # For debugging---let's just check what we're working with.
