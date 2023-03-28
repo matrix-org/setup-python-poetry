@@ -24,6 +24,10 @@ inputs:
       `poetry install --with ...`.
     required: false
     default: ""
+  rust-version:
+    description: Rust version to install.
+    required: false
+    default: "stable"
 runs:
   using: composite
   steps:
@@ -32,6 +36,15 @@ runs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ inputs.python-version }}
+
+    - name: Install Rust
+      # There don't seem to be versioned releases of this action per se: for each rust
+      # version there is a branch which gets constantly rebased on top of master.
+      # We pin to a specific commit for paranoia's sake.
+      uses: dtolnay/rust-toolchain@fc3253060d0c959bea12a59f10f8391454a0b02d
+      with:
+        toolchain: ${{ inputs.rust-version }}
+    - uses: Swatinem/rust-cache@v2
 
     - name: Check for poetry lock
       run: "test -f poetry.lock || (echo No lock file! && false)"
