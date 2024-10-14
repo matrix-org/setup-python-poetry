@@ -33,6 +33,15 @@ inputs:
 runs:
   using: composite
   steps:
+    # We want to include the OS version in the cache key. We do this by reading
+    # `/etc/os-release` and picking some suitable values.
+    - name: Get OS version
+      id: get-os-version
+      run: |
+        source /etc/os-release
+        echo "cache_os_key=$ID-$VERSION_ID" >> "$GITHUB_OUTPUT"
+      shell: bash
+
     - name: Setup Python
       id: setup-python
       uses: actions/setup-python@v4
@@ -60,7 +69,7 @@ runs:
       uses: actions/cache@v3
       with:
         path: ${{ steps.site-user-base.outputs.dir }}
-        key: poetry-install-cache-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}
+        key: poetry-install-cache-${{ steps.get-os-version.outputs.cache_os_key }}-${{ steps.setup-python.outputs.python-version }}-${{ inputs.poetry-version }}
 
     - name: Install poetry from scratch
       if: "${{ steps.poetry-install-cache.outputs.cache-hit != 'true' }}"
