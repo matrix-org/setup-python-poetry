@@ -1,6 +1,10 @@
 name: Setup Python and Poetry
 description: Setup Python and Poetry. Cribbed from snok/install-poetry.
 inputs:
+  working-directory:
+    description: Directory where the action will execute its commands. Defaults to repository root.
+    required: false
+    default: "./"
   python-version:
     description: Python version to pass to actions/setup-python@v4.
     required: false
@@ -33,6 +37,9 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Move to the working directory
+      run: cd ${{ inputs.working-directory }}
+      shell: bash
     - name: Setup Python
       id: setup-python
       uses: actions/setup-python@v4
