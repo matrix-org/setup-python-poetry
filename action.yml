@@ -76,7 +76,7 @@ runs:
     # Again, we're following snok/install-poetry's README.
     - name: Locate poetry venv
       id: poetry-venvs
-      run: echo "dir=$(python -m poetry config virtualenvs.path)" >> "$GITHUB_OUTPUT"
+      run: echo "dir=$(python -m poetry env info -p)" >> "$GITHUB_OUTPUT"
       shell: bash
       working-directory: ${{ inputs.working-directory }}
 
