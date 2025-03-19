@@ -12,6 +12,10 @@ The Python and Poetry versions to are configurable: see `action.yaml` for detail
 
 This particular action is loosely based on [`snok/install-poetry`](https://github.com/snok/install-poetry): in particular, the advice from its README on handling caching.
 
+# Requirements
+
+This action is only usable on Linux-based systems.
+
 # Releasing
 
 Follow the advice given on the [backend-meta](https://github.com/matrix-org/backend-meta#releases) repo.
