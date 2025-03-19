@@ -92,17 +92,14 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
 
-    - name: Install project (no extras or groups)
-      if: inputs.extras == '' && inputs.groups == ''
-      run: poetry install -vv --no-interaction ${{ inputs.install-project != 'true' && '--no-root' || '' }}
+    - name: Install project
+      run: poetry install -vv --no-interaction ${ARG_EXTRAS:+--extras="$ARG_EXTRAS"} ${ARG_GROUPS:+--with="$ARG_GROUPS"} ${ARG_INSTALL:+"$ARG_INSTALL"}
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
-
-    - name: Install project with --extras=${{ inputs.extras }} --with=${{ inputs.groups }}
-      if: inputs.extras != '' || inputs.groups != ''
-      # (Empty groups lists are fine.)
-      run: poetry install -vv --no-interaction ${{ inputs.extras != '' && format('--extras="{0}"', inputs.extras) || '' }} --with="${{ inputs.groups }}" ${{ inputs.install-project != 'true' && '--no-root' || '' }}
-      shell: bash
+      env:
+        # we pass these as env vars to make sure these values don't get expanded as extra arguments or shell directives
+        ARG_EXTRAS: "${{ inputs.extras }}"
+        ARG_GROUPS: "${{ inputs.groups }}"
+        ARG_INSTALL: "${{ inputs.install-project != 'true' && '--no-root' || '' }}"
       working-directory: ${{ inputs.working-directory }}
 
     # For debugging---let's just check what we're working with.
