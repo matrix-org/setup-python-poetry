@@ -86,6 +86,8 @@ runs:
     - name: Locate poetry venv
       id: poetry-venvs
       run: |
+        which poetry
+        poetry --version
         poetry env info -p
         echo "dir=$(poetry env info -p || echo $(pwd)/.venv)" | tee -a "$GITHUB_OUTPUT"
       shell: bash
