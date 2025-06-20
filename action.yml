@@ -88,7 +88,7 @@ runs:
       run: |
         which poetry
         poetry --version
-        poetry env info -p
+        poetry env || poetry env info || poetry env info -p
         echo "dir=$(poetry env info -p || echo $(pwd)/.venv)" | tee -a "$GITHUB_OUTPUT"
       shell: bash
       working-directory: ${{ inputs.working-directory }}
