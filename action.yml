@@ -34,6 +34,11 @@ inputs:
       deps.
     required: false
     default: "true"
+  load-poetry-path:
+    description: >
+      Set to "true" to add the path to the poetry executable to the PATH.
+    required: false
+    default: "false"
 runs:
   using: composite
   steps:
@@ -118,6 +123,11 @@ runs:
         ARG_GROUPS: "${{ inputs.groups }}"
         ARG_INSTALL: "${{ inputs.install-project != 'true' && '--no-root' || '' }}"
       working-directory: ${{ inputs.working-directory }}
+
+    - name: Load poetry path
+      run: |
+        echo "$(poetry env info -p)/bin" >> "${GITHUB_PATH}"
+      if: "${{ inputs.load-poetry-path == 'true' }}"
 
     # For debugging---let's just check what we're working with.
     - name: Dump virtual environment
