@@ -16,8 +16,8 @@ inputs:
   extras:
     description: >
       If present, a space-separated list of extras to pass to
-      `poetry install --extra ...`. Either way, dev-dependencies
-      will be installed.
+      `poetry install --extra ...`. Dev-dependencies will be installed
+      unless only-groups selects different dependency groups.
     # If https://github.com/python-poetry/poetry/issues/3413 get solved, I think
     # we should make this action install all extras by default.
     required: false
@@ -25,7 +25,15 @@ inputs:
   groups:
     description: >
       If present, a space-separated list of dependency groups to pass to
-      `poetry install --with ...`.
+      `poetry install --with ...`. Will be overridden if `only-groups` is
+      set.
+    required: false
+    default: ""
+  only-groups:
+    description: >
+      If present, a comma-separated list of dependency groups to install via
+      `poetry install --only ...`. Include `main` to install the project's default
+      dependencies as well. Takes precedence over `groups`.
     required: false
     default: ""
   install-project:
@@ -102,7 +110,7 @@ runs:
       uses: actions/cache@v3
       with:
         path: ${{ steps.poetry-venvs.outputs.dir }}
-        key: poetry-venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ inputs.extras }}
+        key: poetry-venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ inputs.extras }}-${{ inputs.only-groups }}
 
     - name: Check that the poetry lockfile is up to date
       run: poetry check --lock
@@ -110,12 +118,13 @@ runs:
       working-directory: ${{ inputs.working-directory }}
 
     - name: Install project
-      run: poetry install -vv --no-interaction ${ARG_EXTRAS:+--extras="$ARG_EXTRAS"} ${ARG_GROUPS:+--with="$ARG_GROUPS"} ${ARG_INSTALL:+"$ARG_INSTALL"}
+      run: poetry install -vv --no-interaction ${ARG_EXTRAS:+--extras="$ARG_EXTRAS"} ${ARG_GROUPS:+--with="$ARG_GROUPS"} ${ARG_ONLY_GROUPS:+--only="$ARG_ONLY_GROUPS"} ${ARG_INSTALL:+"$ARG_INSTALL"}
       shell: bash
       env:
         # we pass these as env vars to make sure these values don't get expanded as extra arguments or shell directives
         ARG_EXTRAS: "${{ inputs.extras }}"
         ARG_GROUPS: "${{ inputs.groups }}"
+        ARG_ONLY_GROUPS: "${{ inputs.only-groups }}"
         ARG_INSTALL: "${{ inputs.install-project != 'true' && '--no-root' || '' }}"
       working-directory: ${{ inputs.working-directory }}
 
